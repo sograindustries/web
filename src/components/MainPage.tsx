@@ -2,12 +2,7 @@ import * as React from "react";
 import PatchListItem from "./PatchListItem";
 
 function MainPage() {
-  return (
-    <div>
-      Hello!
-      <PatchListItem />
-    </div>
-  );
+  return <div>Hello!</div>;
 }
 
 export default MainPage;

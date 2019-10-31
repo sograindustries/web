@@ -122,8 +122,8 @@ const mapDispatchToProps: MapDispatchToPropsParam<
   };
 };
 
-export default withApi(
-  withRouter(
+export default withRouter(
+  withApi(
     connect(
       undefined,
       mapDispatchToProps

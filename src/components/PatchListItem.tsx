@@ -12,8 +12,8 @@ const PATCH_FRAGMENT = gql`
 
 const PATCH_QUERY = gql`
   query PatchListItem($uuid: String!) {
-    viewer: {
-      patches: {
+    viewer {
+      patches {
         data
       }
     }
