@@ -3,6 +3,7 @@ import { Grid, Paper, makeStyles, Typography } from "@material-ui/core";
 import clsx from "clsx";
 import { useQuery } from "@apollo/react-hooks";
 import gql from "graphql-tag";
+import { useGetPatchesQuery, PatchPartsFragment } from "../generated/graphql";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -70,7 +71,7 @@ const GET_PATCHES_QUERY = gql`
   ${GET_PATCH_FRAGMENT}
 `;
 
-function PatchListItem() {
+function PatchListItem(props: PatchPartsFragment) {
   const classes = useStyles();
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
@@ -82,7 +83,7 @@ function PatchListItem() {
           $3,024.00
         </Typography>
         <Typography color="textSecondary" className={classes.depositContext}>
-          some uuid here
+          {props.uuid}
         </Typography>
       </Paper>
     </Grid>
@@ -90,20 +91,18 @@ function PatchListItem() {
 }
 
 function PatchList() {
-  const { data, loading, error } = useQuery(GET_PATCHES_QUERY, {});
-
-  console.log("DATA: ", data);
-  console.log("LOADING: ", loading);
-  console.log("ERROR: ", error);
-
+  const { data } = useGetPatchesQuery();
   const classes = useStyles();
+
+  if (!data || !data.viewer) {
+    return <div>hahaha..loading</div>;
+  }
 
   return (
     <Grid container={true} spacing={3} className={classes.container}>
-      <PatchListItem />
-      <PatchListItem />
-      <PatchListItem />
-      <PatchListItem />
+      {data.viewer.patches.map(patch => {
+        return <PatchListItem {...patch} />;
+      })}
     </Grid>
   );
 }

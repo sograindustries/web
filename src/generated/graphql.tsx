@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ApolloReactCommon from '@apollo/react-common';
 import * as ApolloReactComponents from '@apollo/react-components';
 import * as ApolloReactHoc from '@apollo/react-hoc';
+import * as ApolloReactHooks from '@apollo/react-hooks';
 export type Maybe<T> = T | null;
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 /** All built-in and custom scalars, mapped to their actual values */
@@ -14,75 +15,148 @@ export type Scalars = {
   Float: number,
 };
 
+/** Creates a patch. */
+export type CreatePatchInput = {
+  uuid?: Maybe<Scalars['String']>,
+  userId?: Maybe<Scalars['Int']>,
+};
 
-export enum CacheControlScope {
-  Public = 'PUBLIC',
-  Private = 'PRIVATE'
-}
+export type CreatePatchPayload = {
+   __typename?: 'CreatePatchPayload',
+  /** The patch created. */
+  patch?: Maybe<Patch>,
+};
+
+export type Mutation = {
+   __typename?: 'Mutation',
+  updatePatch?: Maybe<UpdatePatchPayload>,
+  createPatch?: Maybe<CreatePatchPayload>,
+  version?: Maybe<Scalars['String']>,
+};
+
+
+export type MutationUpdatePatchArgs = {
+  input: UpdatePatchInput
+};
+
+
+export type MutationCreatePatchArgs = {
+  input: CreatePatchInput
+};
 
 export type Patch = {
    __typename?: 'Patch',
+  id: Scalars['Int'],
   uuid: Scalars['String'],
-  name?: Maybe<Scalars['String']>,
 };
 
 export type Query = {
    __typename?: 'Query',
-  hello?: Maybe<Scalars['String']>,
+  version?: Maybe<Scalars['String']>,
+  user?: Maybe<User>,
+  viewer?: Maybe<User>,
+};
+
+
+export type QueryUserArgs = {
+  id?: Maybe<Scalars['Int']>,
+  username?: Maybe<Scalars['String']>
+};
+
+/** Updates patch of provided ID. */
+export type UpdatePatchInput = {
+  id: Scalars['Int'],
+  uuid?: Maybe<Scalars['String']>,
+};
+
+export type UpdatePatchPayload = {
+   __typename?: 'UpdatePatchPayload',
+  /** The patch updated. */
   patch?: Maybe<Patch>,
 };
 
-
-export type QueryPatchArgs = {
-  uuid: Scalars['String']
+export type User = {
+   __typename?: 'User',
+  patches: Array<Patch>,
+  id: Scalars['Int'],
+  username: Scalars['String'],
+  firstName?: Maybe<Scalars['String']>,
+  lastName?: Maybe<Scalars['String']>,
 };
 
-export type PatchListItemFragmentFragment = (
+export type PatchPartsFragment = (
   { __typename?: 'Patch' }
-  & Pick<Patch, 'uuid' | 'name'>
+  & Pick<Patch, 'id' | 'uuid'>
 );
 
-export type PatchListItemQueryVariables = {
-  uuid: Scalars['String']
-};
+export type GetPatchesQueryVariables = {};
 
 
-export type PatchListItemQuery = (
+export type GetPatchesQuery = (
   { __typename?: 'Query' }
-  & { patch: Maybe<(
-    { __typename?: 'Patch' }
-    & PatchListItemFragmentFragment
+  & { viewer: Maybe<(
+    { __typename?: 'User' }
+    & { patches: Array<(
+      { __typename?: 'Patch' }
+      & PatchPartsFragment
+    )> }
   )> }
 );
 
-export const PatchListItemFragmentFragmentDoc = gql`
-    fragment PatchListItemFragment on Patch {
+export const PatchPartsFragmentDoc = gql`
+    fragment PatchParts on Patch {
+  id
   uuid
-  name
 }
     `;
-export const PatchListItemDocument = gql`
-    query PatchListItem($uuid: String!) {
-  patch(uuid: $uuid) {
-    ...PatchListItemFragment
+export const GetPatchesDocument = gql`
+    query GetPatches {
+  viewer {
+    patches {
+      ...PatchParts
+    }
   }
 }
-    ${PatchListItemFragmentFragmentDoc}`;
-export type PatchListItemComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<PatchListItemQuery, PatchListItemQueryVariables>, 'query'> & ({ variables: PatchListItemQueryVariables; skip?: boolean; } | { skip: boolean; });
+    ${PatchPartsFragmentDoc}`;
+export type GetPatchesComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<GetPatchesQuery, GetPatchesQueryVariables>, 'query'>;
 
-    export const PatchListItemComponent = (props: PatchListItemComponentProps) => (
-      <ApolloReactComponents.Query<PatchListItemQuery, PatchListItemQueryVariables> query={PatchListItemDocument} {...props} />
+    export const GetPatchesComponent = (props: GetPatchesComponentProps) => (
+      <ApolloReactComponents.Query<GetPatchesQuery, GetPatchesQueryVariables> query={GetPatchesDocument} {...props} />
     );
     
-export type PatchListItemProps<TChildProps = {}> = ApolloReactHoc.DataProps<PatchListItemQuery, PatchListItemQueryVariables> & TChildProps;
-export function withPatchListItem<TProps, TChildProps = {}>(operationOptions?: ApolloReactHoc.OperationOption<
+export type GetPatchesProps<TChildProps = {}> = ApolloReactHoc.DataProps<GetPatchesQuery, GetPatchesQueryVariables> & TChildProps;
+export function withGetPatches<TProps, TChildProps = {}>(operationOptions?: ApolloReactHoc.OperationOption<
   TProps,
-  PatchListItemQuery,
-  PatchListItemQueryVariables,
-  PatchListItemProps<TChildProps>>) {
-    return ApolloReactHoc.withQuery<TProps, PatchListItemQuery, PatchListItemQueryVariables, PatchListItemProps<TChildProps>>(PatchListItemDocument, {
-      alias: 'patchListItem',
+  GetPatchesQuery,
+  GetPatchesQueryVariables,
+  GetPatchesProps<TChildProps>>) {
+    return ApolloReactHoc.withQuery<TProps, GetPatchesQuery, GetPatchesQueryVariables, GetPatchesProps<TChildProps>>(GetPatchesDocument, {
+      alias: 'getPatches',
       ...operationOptions
     });
 };
-export type PatchListItemQueryResult = ApolloReactCommon.QueryResult<PatchListItemQuery, PatchListItemQueryVariables>;
+
+/**
+ * __useGetPatchesQuery__
+ *
+ * To run a query within a React component, call `useGetPatchesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPatchesQuery` returns an object from Apollo Client that contains loading, error, and data properties 
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPatchesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPatchesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetPatchesQuery, GetPatchesQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetPatchesQuery, GetPatchesQueryVariables>(GetPatchesDocument, baseOptions);
+      }
+export function useGetPatchesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetPatchesQuery, GetPatchesQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetPatchesQuery, GetPatchesQueryVariables>(GetPatchesDocument, baseOptions);
+        }
+export type GetPatchesQueryHookResult = ReturnType<typeof useGetPatchesQuery>;
+export type GetPatchesLazyQueryHookResult = ReturnType<typeof useGetPatchesLazyQuery>;
+export type GetPatchesQueryResult = ApolloReactCommon.QueryResult<GetPatchesQuery, GetPatchesQueryVariables>;
