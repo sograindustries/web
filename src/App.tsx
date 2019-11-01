@@ -18,8 +18,8 @@ const customFetch = (uri: string, options: any) => {
 
 const link = createHttpLink({
   fetch: customFetch,
-  uri:
-    "https://9sqzy2t6ji.execute-api.us-east-1.amazonaws.com/production/graphql"
+  uri: "http://localhost:4000"
+  // "https://9sqzy2t6ji.execute-api.us-east-1.amazonaws.com/production/graphql"
 });
 
 const client = new ApolloClient({ link, cache: new InMemoryCache() });
@@ -33,15 +33,3 @@ export default function App() {
     </ApolloProvider>
   );
 }
-
-const fakeAuth = {
-  isAuthenticated: false,
-  authenticate(cb: any) {
-    fakeAuth.isAuthenticated = true;
-    setTimeout(cb, 100); // fake async
-  },
-  signout(cb: any) {
-    fakeAuth.isAuthenticated = false;
-    setTimeout(cb, 100);
-  }
-};

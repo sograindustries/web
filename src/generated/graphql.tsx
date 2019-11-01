@@ -15,6 +15,12 @@ export type Scalars = {
   Float: number,
 };
 
+export type Battery = {
+   __typename?: 'Battery',
+  value?: Maybe<Scalars['Float']>,
+  createdAt?: Maybe<Scalars['String']>,
+};
+
 /** Creates a patch. */
 export type CreatePatchInput = {
   uuid?: Maybe<Scalars['String']>,
@@ -48,6 +54,13 @@ export type Patch = {
    __typename?: 'Patch',
   id: Scalars['Int'],
   uuid: Scalars['String'],
+  battery?: Maybe<Battery>,
+  batteryActivity?: Maybe<Array<Battery>>,
+  firmwareVersion?: Maybe<Scalars['String']>,
+  appVersion?: Maybe<Scalars['String']>,
+  mobileDevice?: Maybe<Scalars['String']>,
+  readingCount?: Maybe<Scalars['Int']>,
+  readings?: Maybe<Array<Reading>>,
 };
 
 export type Query = {
@@ -61,6 +74,12 @@ export type Query = {
 export type QueryUserArgs = {
   id?: Maybe<Scalars['Int']>,
   username?: Maybe<Scalars['String']>
+};
+
+export type Reading = {
+   __typename?: 'Reading',
+  id: Scalars['Int'],
+  uri?: Maybe<Scalars['String']>,
 };
 
 /** Updates patch of provided ID. */
@@ -84,9 +103,20 @@ export type User = {
   lastName?: Maybe<Scalars['String']>,
 };
 
-export type PatchPartsFragment = (
+export type BatteryActivityPartsFragment = (
   { __typename?: 'Patch' }
-  & Pick<Patch, 'id' | 'uuid'>
+  & { battery: Maybe<(
+    { __typename?: 'Battery' }
+    & Pick<Battery, 'value'>
+  )>, batteryActivity: Maybe<Array<(
+    { __typename?: 'Battery' }
+    & Pick<Battery, 'createdAt' | 'value'>
+  )>> }
+);
+
+export type PatchCardStatsOverviewFragment = (
+  { __typename?: 'Patch' }
+  & Pick<Patch, 'readingCount'>
 );
 
 export type GetPatchesQueryVariables = {};
@@ -98,21 +128,52 @@ export type GetPatchesQuery = (
     { __typename?: 'User' }
     & { patches: Array<(
       { __typename?: 'Patch' }
+      & Pick<Patch, 'id'>
       & PatchPartsFragment
     )> }
   )> }
 );
 
+export type PatchPartsFragment = (
+  { __typename?: 'Patch' }
+  & Pick<Patch, 'id' | 'uuid' | 'mobileDevice' | 'firmwareVersion' | 'appVersion'>
+  & BatteryActivityPartsFragment
+  & PatchCardStatsOverviewFragment
+);
+
+export const BatteryActivityPartsFragmentDoc = gql`
+    fragment BatteryActivityParts on Patch {
+  battery {
+    value
+  }
+  batteryActivity {
+    createdAt
+    value
+  }
+}
+    `;
+export const PatchCardStatsOverviewFragmentDoc = gql`
+    fragment PatchCardStatsOverview on Patch {
+  readingCount
+}
+    `;
 export const PatchPartsFragmentDoc = gql`
     fragment PatchParts on Patch {
   id
   uuid
+  mobileDevice
+  firmwareVersion
+  appVersion
+  ...BatteryActivityParts
+  ...PatchCardStatsOverview
 }
-    `;
+    ${BatteryActivityPartsFragmentDoc}
+${PatchCardStatsOverviewFragmentDoc}`;
 export const GetPatchesDocument = gql`
     query GetPatches {
   viewer {
     patches {
+      id
       ...PatchParts
     }
   }
