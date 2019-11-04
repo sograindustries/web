@@ -23,7 +23,7 @@ export type Battery = {
 
 /** Creates a patch. */
 export type CreatePatchInput = {
-  uuid?: Maybe<Scalars['String']>,
+  bleId?: Maybe<Scalars['String']>,
   userId?: Maybe<Scalars['Int']>,
 };
 
@@ -33,10 +33,24 @@ export type CreatePatchPayload = {
   patch?: Maybe<Patch>,
 };
 
+/** Creates a reading for a given patch. */
+export type CreateReadingInput = {
+  patchId?: Maybe<Scalars['Int']>,
+  patchBleId?: Maybe<Scalars['ID']>,
+  uri?: Maybe<Scalars['String']>,
+};
+
+export type CreateReadingPayload = {
+   __typename?: 'CreateReadingPayload',
+  /** The patch created. */
+  reading?: Maybe<Reading>,
+};
+
 export type Mutation = {
    __typename?: 'Mutation',
   updatePatch?: Maybe<UpdatePatchPayload>,
   createPatch?: Maybe<CreatePatchPayload>,
+  createReading?: Maybe<CreateReadingPayload>,
   version?: Maybe<Scalars['String']>,
 };
 
@@ -50,10 +64,15 @@ export type MutationCreatePatchArgs = {
   input: CreatePatchInput
 };
 
+
+export type MutationCreateReadingArgs = {
+  input: CreateReadingInput
+};
+
 export type Patch = {
    __typename?: 'Patch',
   id: Scalars['Int'],
-  uuid: Scalars['String'],
+  bleId?: Maybe<Scalars['String']>,
   battery?: Maybe<Battery>,
   batteryActivity?: Maybe<Array<Battery>>,
   firmwareVersion?: Maybe<Scalars['String']>,
@@ -79,13 +98,14 @@ export type QueryUserArgs = {
 export type Reading = {
    __typename?: 'Reading',
   id: Scalars['Int'],
+  createdAt?: Maybe<Scalars['String']>,
   uri?: Maybe<Scalars['String']>,
 };
 
 /** Updates patch of provided ID. */
 export type UpdatePatchInput = {
   id: Scalars['Int'],
-  uuid?: Maybe<Scalars['String']>,
+  bleId?: Maybe<Scalars['String']>,
 };
 
 export type UpdatePatchPayload = {
@@ -97,10 +117,16 @@ export type UpdatePatchPayload = {
 export type User = {
    __typename?: 'User',
   patches: Array<Patch>,
+  patch?: Maybe<Patch>,
   id: Scalars['Int'],
   username: Scalars['String'],
   firstName?: Maybe<Scalars['String']>,
   lastName?: Maybe<Scalars['String']>,
+};
+
+
+export type UserPatchArgs = {
+  id: Scalars['Int']
 };
 
 export type BatteryActivityPartsFragment = (
@@ -136,9 +162,29 @@ export type GetPatchesQuery = (
 
 export type PatchPartsFragment = (
   { __typename?: 'Patch' }
-  & Pick<Patch, 'id' | 'uuid' | 'mobileDevice' | 'firmwareVersion' | 'appVersion'>
+  & Pick<Patch, 'id' | 'bleId' | 'mobileDevice' | 'firmwareVersion' | 'appVersion'>
   & BatteryActivityPartsFragment
   & PatchCardStatsOverviewFragment
+);
+
+export type GetPatchSummaryQueryVariables = {
+  id: Scalars['Int']
+};
+
+
+export type GetPatchSummaryQuery = (
+  { __typename?: 'Query' }
+  & { viewer: Maybe<(
+    { __typename?: 'User' }
+    & { patch: Maybe<(
+      { __typename?: 'Patch' }
+      & Pick<Patch, 'id' | 'bleId' | 'readingCount'>
+      & { readings: Maybe<Array<(
+        { __typename?: 'Reading' }
+        & Pick<Reading, 'id' | 'createdAt' | 'uri'>
+      )>> }
+    )> }
+  )> }
 );
 
 export const BatteryActivityPartsFragmentDoc = gql`
@@ -160,7 +206,7 @@ export const PatchCardStatsOverviewFragmentDoc = gql`
 export const PatchPartsFragmentDoc = gql`
     fragment PatchParts on Patch {
   id
-  uuid
+  bleId
   mobileDevice
   firmwareVersion
   appVersion
@@ -221,3 +267,62 @@ export function useGetPatchesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryH
 export type GetPatchesQueryHookResult = ReturnType<typeof useGetPatchesQuery>;
 export type GetPatchesLazyQueryHookResult = ReturnType<typeof useGetPatchesLazyQuery>;
 export type GetPatchesQueryResult = ApolloReactCommon.QueryResult<GetPatchesQuery, GetPatchesQueryVariables>;
+export const GetPatchSummaryDocument = gql`
+    query GetPatchSummary($id: Int!) {
+  viewer {
+    patch(id: $id) {
+      id
+      bleId
+      readingCount
+      readings {
+        id
+        createdAt
+        uri
+      }
+    }
+  }
+}
+    `;
+export type GetPatchSummaryComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<GetPatchSummaryQuery, GetPatchSummaryQueryVariables>, 'query'> & ({ variables: GetPatchSummaryQueryVariables; skip?: boolean; } | { skip: boolean; });
+
+    export const GetPatchSummaryComponent = (props: GetPatchSummaryComponentProps) => (
+      <ApolloReactComponents.Query<GetPatchSummaryQuery, GetPatchSummaryQueryVariables> query={GetPatchSummaryDocument} {...props} />
+    );
+    
+export type GetPatchSummaryProps<TChildProps = {}> = ApolloReactHoc.DataProps<GetPatchSummaryQuery, GetPatchSummaryQueryVariables> & TChildProps;
+export function withGetPatchSummary<TProps, TChildProps = {}>(operationOptions?: ApolloReactHoc.OperationOption<
+  TProps,
+  GetPatchSummaryQuery,
+  GetPatchSummaryQueryVariables,
+  GetPatchSummaryProps<TChildProps>>) {
+    return ApolloReactHoc.withQuery<TProps, GetPatchSummaryQuery, GetPatchSummaryQueryVariables, GetPatchSummaryProps<TChildProps>>(GetPatchSummaryDocument, {
+      alias: 'getPatchSummary',
+      ...operationOptions
+    });
+};
+
+/**
+ * __useGetPatchSummaryQuery__
+ *
+ * To run a query within a React component, call `useGetPatchSummaryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPatchSummaryQuery` returns an object from Apollo Client that contains loading, error, and data properties 
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPatchSummaryQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetPatchSummaryQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetPatchSummaryQuery, GetPatchSummaryQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetPatchSummaryQuery, GetPatchSummaryQueryVariables>(GetPatchSummaryDocument, baseOptions);
+      }
+export function useGetPatchSummaryLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetPatchSummaryQuery, GetPatchSummaryQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetPatchSummaryQuery, GetPatchSummaryQueryVariables>(GetPatchSummaryDocument, baseOptions);
+        }
+export type GetPatchSummaryQueryHookResult = ReturnType<typeof useGetPatchSummaryQuery>;
+export type GetPatchSummaryLazyQueryHookResult = ReturnType<typeof useGetPatchSummaryLazyQuery>;
+export type GetPatchSummaryQueryResult = ApolloReactCommon.QueryResult<GetPatchSummaryQuery, GetPatchSummaryQueryVariables>;

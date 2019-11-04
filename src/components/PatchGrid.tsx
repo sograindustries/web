@@ -8,7 +8,7 @@ import BatteryIcon from "@material-ui/icons/BatteryFull";
 
 interface Patch {
   name: string;
-  uuid: string;
+  bleId: string;
   batteryPct: number;
   lastUploadEpoch: number;
   sampleCount: number;
@@ -26,7 +26,7 @@ function PatchGrid(props: Props) {
       <React.Fragment>
         {items.map(item => {
           return (
-            <Grid item xs={4} key={item.uuid}>
+            <Grid item xs={4} key={item.bleId}>
               <Paper className={classes.paper}>
                 <div style={{ display: "flex" }}>
                   <Typography
@@ -47,7 +47,7 @@ function PatchGrid(props: Props) {
                 </div>
 
                 <Typography variant="subtitle1" style={{ color: "gray" }}>
-                  {item.uuid}
+                  {item.bleId}
                 </Typography>
 
                 <Typography>
@@ -83,7 +83,7 @@ function PatchGrid(props: Props) {
               item
               xs={12}
               spacing={3}
-              key={row.map(uuid => uuid).join("-")}
+              key={row.map(bleId => bleId).join("-")}
             >
               <FormRow items={row} />
             </Grid>

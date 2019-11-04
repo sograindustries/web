@@ -15,6 +15,7 @@ import MainPage from "./MainPage";
 import PatchesPage from "./PatchesPage";
 import AppBar from "./AppBar";
 import PatientsPage from "./PatientsPage";
+import PatchSummaryPage from "./PatchSummaryPage";
 
 const withPath = (route: string) => `/${route}`;
 
@@ -23,6 +24,7 @@ export const ROUTE_SIGNUP = "signup";
 export const ROUTE_PATIENTS = "patients";
 export const ROUTE_PATCHES = "patches";
 export const ROUTE_LOGIN = "login";
+export const ROUTE_PATCH_SUMMARY = "patches/:id";
 
 export function AppRouter() {
   return (
@@ -34,6 +36,11 @@ export function AppRouter() {
         <Route path={withPath(ROUTE_LOGIN)}>
           <LoginPage />
         </Route>
+        <PrivateRoute
+          path={withPath(ROUTE_PATCH_SUMMARY)}
+          component={PatchSummaryPage}
+        />
+
         <PrivateRoute path={withPath(ROUTE_PATCHES)}>
           <PatchesPage />
         </PrivateRoute>
@@ -101,10 +108,12 @@ const PrivateRoute = withApi(
     (dispatch: AppDispatch, ownProps: WithApiProps) => {
       return {
         attemptAuthFromStorage: async () => {
+          /*
           if (process.env.NODE_ENV !== "production") {
-            dispatch(loginSuccess("will@argosindustries.com", "fake-jwt"));
+            dispatch(loginSuccess("will@argosindustries.com", ));
             return;
           }
+          */
 
           const user = await ownProps.api.auth.getCurrentUser();
           if (user) {
