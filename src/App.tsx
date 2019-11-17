@@ -18,8 +18,9 @@ const customFetch = (uri: string, options: any) => {
 
 const link = createHttpLink({
   fetch: customFetch,
-  uri: "http://localhost:4000"
-  // "https://9sqzy2t6ji.execute-api.us-east-1.amazonaws.com/production/graphql"
+  //uri: "http://localhost:4000"
+  uri:
+    "https://9sqzy2t6ji.execute-api.us-east-1.amazonaws.com/production/graphql"
 });
 
 const client = new ApolloClient({ link, cache: new InMemoryCache() });

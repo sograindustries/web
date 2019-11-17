@@ -1,12 +1,12 @@
 import * as React from "react";
-import { Grid, Paper, makeStyles, Typography } from "@material-ui/core";
+import { Grid, Paper, makeStyles, Typography, Button } from "@material-ui/core";
 import clsx from "clsx";
 import gql from "graphql-tag";
 import { PatchPartsFragment } from "../generated/graphql";
 import BatteryChart from "./BatteryChart";
 import PatchCardStatsOverview from "./PatchCardStatsOverview";
 import { useHistory } from "react-router";
-import { ROUTE_PATCH_SUMMARY } from "./AppRouter";
+import { ROUTE_PATCH_SUMMARY, ROUTE_PATCH_DASHBOARD } from "./AppRouter";
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -65,12 +65,17 @@ function PatchListItem(props: PatchPartsFragment) {
     history.push(ROUTE_PATCH_SUMMARY.replace(":id", `${props.id}`));
   };
 
+  const handleContinuousViewClick = () => {
+    history.push(ROUTE_PATCH_DASHBOARD.replace(":id", `${props.id}`));
+  };
+
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   return (
     <Grid item={true} xs={12} md={6} lg={6}>
       <Paper className={fixedHeightPaper} style={{ position: "relative" }}>
         <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
           <Title onClick={handleClick}>Andy</Title>
+
           <Typography
             variant="caption"
             color="textSecondary"
@@ -83,6 +88,25 @@ function PatchListItem(props: PatchPartsFragment) {
           </Typography>
 
           <BatteryChart {...props} />
+
+          <div>
+            <Button
+              onClick={handleContinuousViewClick}
+              variant="contained"
+              color="secondary"
+              style={{ margin: 5 }}
+            >
+              View Details
+            </Button>
+            <Button
+              onClick={handleClick}
+              variant="contained"
+              color="primary"
+              style={{ margin: 5 }}
+            >
+              View Readings
+            </Button>
+          </div>
         </div>
 
         <div

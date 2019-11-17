@@ -38,6 +38,12 @@ export type CreateReadingInput = {
   patchId?: Maybe<Scalars['Int']>,
   patchBleId?: Maybe<Scalars['ID']>,
   uri?: Maybe<Scalars['String']>,
+  /** Commit hash associated with FW build. */
+  firmwareVersion?: Maybe<Scalars['String']>,
+  /** Packet sequence number since device was last powered on. Reset to 0 when device is powered off. */
+  sequence?: Maybe<Scalars['Int']>,
+  /** Number of milliseconds patch has been on. */
+  uptimeMs?: Maybe<Scalars['Int']>,
 };
 
 export type CreateReadingPayload = {
@@ -84,9 +90,16 @@ export type Patch = {
 
 export type Query = {
    __typename?: 'Query',
+  readings?: Maybe<Array<Maybe<Reading>>>,
   version?: Maybe<Scalars['String']>,
   user?: Maybe<User>,
   viewer?: Maybe<User>,
+};
+
+
+export type QueryReadingsArgs = {
+  patchId: Scalars['Int'],
+  start?: Maybe<Scalars['String']>
 };
 
 
@@ -100,6 +113,9 @@ export type Reading = {
   id: Scalars['Int'],
   createdAt?: Maybe<Scalars['String']>,
   uri?: Maybe<Scalars['String']>,
+  firmwareVersion?: Maybe<Scalars['String']>,
+  sequence?: Maybe<Scalars['Int']>,
+  uptimeMs?: Maybe<Scalars['Int']>,
 };
 
 /** Updates patch of provided ID. */
@@ -185,6 +201,20 @@ export type GetPatchSummaryQuery = (
       )>> }
     )> }
   )> }
+);
+
+export type GetReadingsByTimeRangeQueryVariables = {
+  patchId: Scalars['Int'],
+  start?: Maybe<Scalars['String']>
+};
+
+
+export type GetReadingsByTimeRangeQuery = (
+  { __typename?: 'Query' }
+  & { readings: Maybe<Array<Maybe<(
+    { __typename?: 'Reading' }
+    & Pick<Reading, 'id' | 'createdAt' | 'uri'>
+  )>>> }
 );
 
 export const BatteryActivityPartsFragmentDoc = gql`
@@ -326,3 +356,56 @@ export function useGetPatchSummaryLazyQuery(baseOptions?: ApolloReactHooks.LazyQ
 export type GetPatchSummaryQueryHookResult = ReturnType<typeof useGetPatchSummaryQuery>;
 export type GetPatchSummaryLazyQueryHookResult = ReturnType<typeof useGetPatchSummaryLazyQuery>;
 export type GetPatchSummaryQueryResult = ApolloReactCommon.QueryResult<GetPatchSummaryQuery, GetPatchSummaryQueryVariables>;
+export const GetReadingsByTimeRangeDocument = gql`
+    query GetReadingsByTimeRange($patchId: Int!, $start: String) {
+  readings(patchId: $patchId, start: $start) {
+    id
+    createdAt
+    uri
+  }
+}
+    `;
+export type GetReadingsByTimeRangeComponentProps = Omit<ApolloReactComponents.QueryComponentOptions<GetReadingsByTimeRangeQuery, GetReadingsByTimeRangeQueryVariables>, 'query'> & ({ variables: GetReadingsByTimeRangeQueryVariables; skip?: boolean; } | { skip: boolean; });
+
+    export const GetReadingsByTimeRangeComponent = (props: GetReadingsByTimeRangeComponentProps) => (
+      <ApolloReactComponents.Query<GetReadingsByTimeRangeQuery, GetReadingsByTimeRangeQueryVariables> query={GetReadingsByTimeRangeDocument} {...props} />
+    );
+    
+export type GetReadingsByTimeRangeProps<TChildProps = {}> = ApolloReactHoc.DataProps<GetReadingsByTimeRangeQuery, GetReadingsByTimeRangeQueryVariables> & TChildProps;
+export function withGetReadingsByTimeRange<TProps, TChildProps = {}>(operationOptions?: ApolloReactHoc.OperationOption<
+  TProps,
+  GetReadingsByTimeRangeQuery,
+  GetReadingsByTimeRangeQueryVariables,
+  GetReadingsByTimeRangeProps<TChildProps>>) {
+    return ApolloReactHoc.withQuery<TProps, GetReadingsByTimeRangeQuery, GetReadingsByTimeRangeQueryVariables, GetReadingsByTimeRangeProps<TChildProps>>(GetReadingsByTimeRangeDocument, {
+      alias: 'getReadingsByTimeRange',
+      ...operationOptions
+    });
+};
+
+/**
+ * __useGetReadingsByTimeRangeQuery__
+ *
+ * To run a query within a React component, call `useGetReadingsByTimeRangeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetReadingsByTimeRangeQuery` returns an object from Apollo Client that contains loading, error, and data properties 
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetReadingsByTimeRangeQuery({
+ *   variables: {
+ *      patchId: // value for 'patchId'
+ *      start: // value for 'start'
+ *   },
+ * });
+ */
+export function useGetReadingsByTimeRangeQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetReadingsByTimeRangeQuery, GetReadingsByTimeRangeQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetReadingsByTimeRangeQuery, GetReadingsByTimeRangeQueryVariables>(GetReadingsByTimeRangeDocument, baseOptions);
+      }
+export function useGetReadingsByTimeRangeLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetReadingsByTimeRangeQuery, GetReadingsByTimeRangeQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetReadingsByTimeRangeQuery, GetReadingsByTimeRangeQueryVariables>(GetReadingsByTimeRangeDocument, baseOptions);
+        }
+export type GetReadingsByTimeRangeQueryHookResult = ReturnType<typeof useGetReadingsByTimeRangeQuery>;
+export type GetReadingsByTimeRangeLazyQueryHookResult = ReturnType<typeof useGetReadingsByTimeRangeLazyQuery>;
+export type GetReadingsByTimeRangeQueryResult = ApolloReactCommon.QueryResult<GetReadingsByTimeRangeQuery, GetReadingsByTimeRangeQueryVariables>;

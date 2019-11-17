@@ -16,6 +16,7 @@ import PatchesPage from "./PatchesPage";
 import AppBar from "./AppBar";
 import PatientsPage from "./PatientsPage";
 import PatchSummaryPage from "./PatchSummaryPage";
+import DashboardPage from "./dashboard/DashboardPage";
 
 const withPath = (route: string) => `/${route}`;
 
@@ -25,6 +26,7 @@ export const ROUTE_PATIENTS = "patients";
 export const ROUTE_PATCHES = "patches";
 export const ROUTE_LOGIN = "login";
 export const ROUTE_PATCH_SUMMARY = "patches/:id";
+export const ROUTE_PATCH_DASHBOARD = "dashboard/patches/:id/";
 
 export function AppRouter() {
   return (
@@ -39,6 +41,10 @@ export function AppRouter() {
         <PrivateRoute
           path={withPath(ROUTE_PATCH_SUMMARY)}
           component={PatchSummaryPage}
+        />
+        <PrivateRoute
+          path={withPath(ROUTE_PATCH_DASHBOARD)}
+          component={DashboardPage}
         />
 
         <PrivateRoute path={withPath(ROUTE_PATCHES)}>

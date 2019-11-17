@@ -1,11 +1,12 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import { useGetPatchSummaryQuery } from "../generated/graphql";
-import { Switch, FormControlLabel } from "@material-ui/core";
+import { Switch, FormControlLabel, Button, Icon } from "@material-ui/core";
 import AWS from "aws-sdk";
 import { connect } from "react-redux";
 import { AppState } from "../store";
 import EcgChart from "./EcgChart";
+import Dashboard from "./dashboard/Dashboard";
 
 var poolData = {
   UserPoolId: "us-east-1_9vsr32SCz", // your user pool id here
@@ -119,9 +120,42 @@ function ChartContainer(props: {
     return <div>Loading...</div>;
   }
 
+  const handleDownload = () => {
+    var textToSave = data.map(
+      (el: any) => JSON.stringify(el.flat().join(",")) + "\n"
+    );
+
+    textToSave = data.join("\n");
+
+    //  textToSave = textToSave.slice(1, textToSave.length - 1).replace("\n", "");
+
+    var hiddenElement = document.createElement("a");
+
+    hiddenElement.href = "data:attachment/text," + encodeURI(textToSave);
+    hiddenElement.target = "_blank";
+    hiddenElement.download = `${props.uri}`;
+    hiddenElement.click();
+  };
+
+  console.log(data);
+
+  let isContiguous = true;
+  for (let i = 0; i < data.length - 1; i++) {
+    const currPacketCount = data[i][0];
+    const nextPacketCount = data[i + 1][0];
+
+    if (nextPacketCount - currPacketCount !== 1) {
+      isContiguous = false;
+    }
+  }
+
   return (
     <div>
-      <EcgChart data={data} />
+      <Button onClick={handleDownload} color="primary">
+        Download
+      </Button>
+      {isContiguous ? "VALID. IS CONTIGUOUS" : "INVALID. NOT CONTIGUOUS."}
+      <EcgChart data={data.map((el: any) => el[2]).flat()} />
     </div>
   );
 }
@@ -135,6 +169,7 @@ function Reading(props: {
 
   return (
     <div>
+      <div>{props.uri}</div>
       <div>{new Date(parseInt(props.createdAt)).toISOString()}</div>
       <FormControlLabel
         control={
@@ -185,7 +220,7 @@ function PatchSummaryPageInner(props: { id: number }) {
 
   return (
     <div>
-      {data.viewer.patch.readings!.map(reading => {
+      {data.viewer.patch.readings!.reverse().map(reading => {
         if (reading.uri && reading.createdAt) {
           return (
             <ReadingContainer
