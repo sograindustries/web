@@ -44,6 +44,8 @@ export type CreateReadingInput = {
   sequence?: Maybe<Scalars['Int']>,
   /** Number of milliseconds patch has been on. */
   uptimeMs?: Maybe<Scalars['Int']>,
+  /** Set of tags used to provide additional context to reading. */
+  tags?: Maybe<Array<Scalars['String']>>,
 };
 
 export type CreateReadingPayload = {
@@ -116,6 +118,7 @@ export type Reading = {
   firmwareVersion?: Maybe<Scalars['String']>,
   sequence?: Maybe<Scalars['Int']>,
   uptimeMs?: Maybe<Scalars['Int']>,
+  tags?: Maybe<Array<Scalars['String']>>,
 };
 
 /** Updates patch of provided ID. */
@@ -213,7 +216,7 @@ export type GetReadingsByTimeRangeQuery = (
   { __typename?: 'Query' }
   & { readings: Maybe<Array<Maybe<(
     { __typename?: 'Reading' }
-    & Pick<Reading, 'id' | 'createdAt' | 'uri'>
+    & Pick<Reading, 'id' | 'createdAt' | 'uri' | 'tags'>
   )>>> }
 );
 
@@ -362,6 +365,7 @@ export const GetReadingsByTimeRangeDocument = gql`
     id
     createdAt
     uri
+    tags
   }
 }
     `;

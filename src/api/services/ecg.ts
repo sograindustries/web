@@ -46,7 +46,7 @@ export const makeEcgService = () => {
         );
       });
     },
-    get: (key: string, jwt: string) => {
+    get: (key: string, jwt: string): any => {
       return new Promise(async (res, rej) => {
         await AWS.config.update({
           ...AWS.config,

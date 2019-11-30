@@ -17,6 +17,7 @@
     "apollo-boost": "^0.4.4",
     "aws-sdk": "^2.551.0",
     "clsx": "^1.0.4",
+    "firebase": "^7.5.0",
     "graphql": "^14.5.8",
     "moment": "^2.24.0",
     "react": "^16.10.2",
@@ -38,6 +39,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "rm -rf build && yarn build && aws s3 cp build s3://argosindustries --recursive",
+    "deploy-web": "rm -rf build && yarn build && aws s3 cp build s3://sograindustries.com --recursive",
+    "invalidate-web": "aws cloudfront create-invalidation --distribution-id E3ONDTBNXJAZC9 --paths \"/*\"",
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "eslintConfig": {
